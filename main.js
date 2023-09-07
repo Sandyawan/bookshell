@@ -14,10 +14,10 @@ function inputBook() {
     const inputBook = document.getElementById('inputBookTitle').value;
     const inputAuthor = document.getElementById('inputBookAuthor').value;
     const inputYear = document.getElementById('inputBookYear').value;
-    
+    const isCompleted = document.getElementById('inputBookIsComplete').checked; 
 
     const generatedID = generatedid();
-    const bookObject = generateBookObject(generatedID, inputBook, inputAuthor, inputYear, false);
+    const bookObject = generateBookObject(generatedID, inputBook, inputAuthor, inputYear, isCompleted);
     bookSubmit.push(bookObject);
 
     document.dispatchEvent(new Event(RENDER_EVENT));
@@ -59,6 +59,9 @@ function makeBook(bookObject) {
     container.append(textContainer);
     container.setAttribute('id', 'book-${bookObject.id}');
 
+    const buttonContainer = document.createElement('div');
+    buttonContainer.classList.add('action');
+
     if(bookObject.isCompleted) {
         const undoButton = document.createElement('button');
         undoButton.innerText = "Belum Selesai Dibaca"
@@ -76,7 +79,7 @@ function makeBook(bookObject) {
             removeBookIsCompleted(bookObject.id);
         });
 
-        container.append(undoButton, removeButton);
+        buttonContainer.append(undoButton, removeButton);
     } else {
         const completeButton = document.createElement('button');
         completeButton.innerText = "Selesai Dibaca";
@@ -93,8 +96,10 @@ function makeBook(bookObject) {
         removeButton.addEventListener('click', function() {
             removeBookIsCompleted(bookObject.id);
     });
-        container.append(completeButton, removeButton);
+        buttonContainer.append(completeButton, removeButton);
+
 }
+    container.append(buttonContainer);
     return container;
 }
 
