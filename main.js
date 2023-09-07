@@ -1,5 +1,5 @@
 const bookSubmit = [];
-const RENDER_EVENT = 'render-input'
+const RENDER_EVENT = 'render-book'
 
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -8,25 +8,22 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
         inputBook();    
     });    
-    if (isStorageExist()) {
-        loadDataFromStorage();
-    }
 });
 
 function inputBook() {
     const inputBook = document.getElementById('inputBookTitle').value;
     const inputAuthor = document.getElementById('inputBookAuthor').value;
     const inputYear = document.getElementById('inputBookYear').value;
-    const isCompleted = document.getElementById('inputBookIsComplete').Checked;
+    
 
-    const generatedID = generatedID();
-    const bookObject = generateBookObject(generatedID, inputBook, inputAuthor, inputYear, isCompleted);
+    const generatedID = generatedid();
+    const bookObject = generateBookObject(generatedID, inputBook, inputAuthor, inputYear, false);
     bookSubmit.push(bookObject);
 
     document.dispatchEvent(new Event(RENDER_EVENT));
 }
 
-function generatedID(){
+function generatedid(){
     return +new Date();
 };
 
@@ -45,32 +42,82 @@ document.addEventListener(RENDER_EVENT, function()
 });
 
 function makeBook(bookObject) {
-    const textBook = document.createElement('h2');
-    textBook.innerText = bookObject.title;
+    const textTitle = document.createElement('h2');
+    textTitle.innerText = bookObject.title;
 
     const textAuthor = document.createElement('p');
-    textAuthor.innerText = bookObjectObject.author;
+    textAuthor.innerText = document.author;
 
     const textYear = document.createElement('p');
-    textYear.innerText = bookObjectObject.year;
+    textYear.innerText = document.year;
 
     const textContainer = document.createElement('div');
-    textContainer.classList.add("inner");
-    textContainer.append(textBook, textAuthor, textYear);
+    textContainer.classList.add('inner');
+    textContainer.append(textTitle, textAuthor, textYear);
 
-    const bookContainer = document.createElement('div');
-    bookContainer.append(textContainer);
-    bookContainer.setAttribute('id', 'book-${bookObject.id}')
+    const container = document.createElement('div');
+    container.classList.add('item', 'shadow');
+    container.append(textContainer);
+    container.setAttribute('id', 'book-${bookObject.id}');
 
-    return bookContainer;
+    if(bookObject.isCompleted) {
+        const undoButton = document.createElement('button');
+        undoButton.classList.add('blue');
+    
+        undoButton.addEventListener('click', function() {
+            undoBookIsCompleted(bookObject.id);
+        });
+
+        const removeButton = document.createElement('button');
+        removeButton.classList.add('red');
+
+        removeButton.addEventListener('click', function() {
+            removeBookIsCompleted(bookObject.id);
+        });
+
+        container.append(undoButton, removeButton);
+    } else {
+        const checkButton = document.createElement('button');
+        checkButton.classList.add('blue');
+
+        checkButton.addEventListener('click', function() {
+            checkBookIsCompleted(bookObject.id);
+        });
+
+        container.append(checkButton);
+    }
+
+    return container;
+}
+
+function addBookIsCompleted (bookid) {
+    const bookTarget = findBook(bookid);
+
+    if (bookTarget == null) return;
+
+    bookTarget.isCompleted = true;
+    document.dispatchEvent(new Event(RENDER_EVENT));
+}
+
+function findBook(bookid) {
+    for(const bookObject of bookSubmit) {
+        if(bookObject.id === bookid) {
+            return bookObject;
+        }
+    }
+    return null;
 }
 
 document.addEventListener(RENDER_EVENT, function() {
-    const uncompletedBook = document.getElementById('incompleteBookshelfList');
-    uncompletedBook.innerHTML = " ";
+    const inCompleteBook = document.getElementById('incompleteBookshelfList');
+    inCompleteBook.innerHTML = '';
+    const completeBook = document.getElementById('completeBookshelfList');
+    completeBook.innerHTML = '';
 
     for (const bookItem of bookSubmit) {
         const bookElement = makeBook(bookItem);
-        uncompletedBook.append(bookElement);
-    }
+        if(!bookItem.isCompleted) {
+            inCompleteBook.append(bookElement);
+        } 
+    }           
 });
