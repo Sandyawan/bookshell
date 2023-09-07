@@ -4,11 +4,21 @@ const RENDER_EVENT = 'render-book'
 
 document.addEventListener('DOMContentLoaded', function () {
     const submitForm = document.getElementById('inputBook');
+    const searchForm = document.getElementById('searchBook');
     submitForm.addEventListener('submit', function(event) {
         event.preventDefault();
         inputBook();    
     });    
+    searchForm.addEventListener('submit', function(event) {
+    event.preventDefault(); 
+    searchBook();   
+    })
 });
+
+function searchBook() {
+    const bookList = document.querySelectorAll(".book_item");
+    console.log(bookList);
+}
 
 function inputBook() {
     const inputBook = document.getElementById('inputBookTitle').value;
@@ -52,11 +62,11 @@ function makeBook(bookObject) {
     textYear.innerText = bookObject.year;
 
     const textContainer = document.createElement('div');
-    textContainer.classList.add('container');
     textContainer.append(textTitle, textAuthor, textYear);
 
     const container = document.createElement('div');
     container.append(textContainer);
+    container.classList.add('book_item');
     container.setAttribute('id', 'book-${bookObject.id}');
 
     const buttonContainer = document.createElement('div');
