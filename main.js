@@ -42,33 +42,34 @@ document.addEventListener(RENDER_EVENT, function()
 });
 
 function makeBook(bookObject) {
-    const textTitle = document.createElement('h2');
+    const textTitle = document.createElement('h3');
     textTitle.innerText = bookObject.title;
 
     const textAuthor = document.createElement('p');
-    textAuthor.innerText = document.author;
+    textAuthor.innerText = bookObject.author;
 
     const textYear = document.createElement('p');
-    textYear.innerText = document.year;
+    textYear.innerText = bookObject.year;
 
     const textContainer = document.createElement('div');
-    textContainer.classList.add('inner');
+    textContainer.classList.add('container');
     textContainer.append(textTitle, textAuthor, textYear);
 
     const container = document.createElement('div');
-    container.classList.add('item', 'shadow');
     container.append(textContainer);
     container.setAttribute('id', 'book-${bookObject.id}');
 
     if(bookObject.isCompleted) {
         const undoButton = document.createElement('button');
-        undoButton.classList.add('blue');
+        undoButton.innerText = "Belum Selesai Dibaca"
+        undoButton.classList.add('Green');
     
         undoButton.addEventListener('click', function() {
             undoBookIsCompleted(bookObject.id);
         });
 
         const removeButton = document.createElement('button');
+        removeButton.innerText = "Hapus Buku";
         removeButton.classList.add('red');
 
         removeButton.addEventListener('click', function() {
@@ -77,16 +78,23 @@ function makeBook(bookObject) {
 
         container.append(undoButton, removeButton);
     } else {
-        const checkButton = document.createElement('button');
-        checkButton.classList.add('blue');
+        const completeButton = document.createElement('button');
+        completeButton.innerText = "Selesai Dibaca";
+        completeButton.classList.add('Green');
 
-        checkButton.addEventListener('click', function() {
-            checkBookIsCompleted(bookObject.id);
+        completeButton.addEventListener('click', function() {
+            addBookIsCompleted(bookObject.id);
         });
 
-        container.append(checkButton);
-    }
+        const removeButton = document.createElement('Button');
+        removeButton.innerText = "Hapus Buku";
+        removeButton.classList.add('red');
 
+        removeButton.addEventListener('click', function() {
+            removeBookIsCompleted(bookObject.id);
+    });
+        container.append(completeButton, removeButton);
+}
     return container;
 }
 
@@ -100,24 +108,56 @@ function addBookIsCompleted (bookid) {
 }
 
 function findBook(bookid) {
-    for(const bookObject of bookSubmit) {
-        if(bookObject.id === bookid) {
-            return bookObject;
+    for(const makeBook of bookSubmit) {
+        if(makeBook.id === bookid) {
+            return makeBook;
         }
     }
     return null;
 }
 
+function removeBookIsCompleted(bookid) {
+    const bookTarget = findBookIndex(bookid);
+
+    if (bookTarget === -1) return;
+
+    bookSubmit.splice(bookTarget,1);
+    document.dispatchEvent(new Event(RENDER_EVENT));
+}
+
+function undoBookIsCompleted(bookid) {
+    const bookTarget = findBook(bookid);
+
+    if (bookTarget == null) return;
+
+    bookTarget.isCompleted = false;
+    document.dispatchEvent(new Event(RENDER_EVENT));
+}
+
+function findBookIndex(bookid) {
+    for (const index in bookSubmit) {
+        if (bookSubmit[index].id === bookid) {
+            return index;
+        }
+    }
+
+    return -1;
+}
+
 document.addEventListener(RENDER_EVENT, function() {
     const inCompleteBook = document.getElementById('incompleteBookshelfList');
     inCompleteBook.innerHTML = '';
+    
     const completeBook = document.getElementById('completeBookshelfList');
     completeBook.innerHTML = '';
 
-    for (const bookItem of bookSubmit) {
-        const bookElement = makeBook(bookItem);
-        if(!bookItem.isCompleted) {
+    for (const bookObject of bookSubmit) {
+        const bookElement = makeBook(bookObject);
+        if(!bookObject.isCompleted) {
             inCompleteBook.append(bookElement);
-        } 
-    }           
+        }else {
+            completeBook.append(bookElement);
+        }    
+    }       
+    return 1;
 });
